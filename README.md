@@ -51,10 +51,19 @@ npm install
 cd GraphMemory/ai-service && pip install -r requirements.txt
 ```
 
-### 5. Database Migrations
+### 5. Database Initialization (Unified Schema)
+Aria and GraphMemory share the same database schema for seamless integration. You only need to run the initialization from the Aria root:
+
 ```bash
+# From the Aria root directory
 npx drizzle-kit push
 ```
+This command will:
+- Initialize the core Aria tables (Auth, Agent logs).
+- Create the Knowledge Graph and Vector RAG tables for MemoryOS.
+- Enable the `pgvector` extension on your Neon/PostgreSQL instance.
+
+---
 
 ### 6. Run the Ecosystem
 You need to run both the Next.js app and the Python AI service:
