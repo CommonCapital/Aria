@@ -10,47 +10,49 @@ datasource db {
 }
 
 model Note {
-  id        String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  id        String                      @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
   title     String
-  content   String    @default("")
+  content   String                      @default("")
   tags      String[]
   embedding Unsupported("vector(384)")?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  createdAt DateTime                    @default(now())
+  updatedAt DateTime                    @updatedAt
   userId    String
 
   chunks      Chunk[]
   graphNodes  GraphNode[]
-  sourceLinks WikiLink[] @relation("SourceNote")
-  targetLinks WikiLink[] @relation("TargetNote")
+  sourceLinks WikiLink[]  @relation("SourceNote")
+  targetLinks WikiLink[]  @relation("TargetNote")
 
   @@map("notes")
 }
 
 model Chunk {
-  id         String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  noteId     String    @db.Uuid
+  id         String                      @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  noteId     String                      @db.Uuid
   content    String
   chunkIndex Int
   embedding  Unsupported("vector(384)")?
   userId     String
-  note       Note      @relation(fields: [noteId], references: [id], onDelete: Cascade)
+  note       Note                        @relation(fields: [noteId], references: [id], onDelete: Cascade)
 
   @@map("chunks")
 }
 
 model GraphNode {
-  id         String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  label      String
-  type       String    @default("concept")
-  noteId     String?   @db.Uuid
-  properties Json      @default("{}")
-  embedding  Unsupported("vector(384)")?
-  createdAt  DateTime  @default(now())
-  userId     String
-  note       Note?     @relation(fields: [noteId], references: [id], onDelete: SetNull)
-  outEdges   GraphEdge[] @relation("SourceNode")
-  inEdges    GraphEdge[] @relation("TargetNode")
+  id            String                      @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  label         String
+  type          String                      @default("concept")
+  noteId        String?                     @db.Uuid
+  properties    Json                        @default("{}")
+  embedding     Unsupported("vector(384)")?
+  createdAt     DateTime                    @default(now())
+  userId        String
+  note          Note?                       @relation(fields: [noteId], references: [id], onDelete: SetNull)
+  outEdges      GraphEdge[]                 @relation("SourceNode")
+  inEdges       GraphEdge[]                 @relation("TargetNode")
+  similarNodesA NodeSimilarity[]            @relation("SimilarA")
+  similarNodesB NodeSimilarity[]            @relation("SimilarB")
 
   @@map("graph_nodes")
 }
@@ -96,13 +98,13 @@ model MemorySession {
 }
 
 model NodeSimilarity {
-  id        String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
-  nodeAId   String    @db.Uuid
-  nodeBId   String    @db.Uuid
-  score     Float
-  userId    String
-  nodeA     GraphNode @relation("SimilarA", fields: [nodeAId], references: [id], onDelete: Cascade)
-  nodeB     GraphNode @relation("SimilarB", fields: [nodeBId], references: [id], onDelete: Cascade)
+  id      String    @id @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  nodeAId String    @db.Uuid
+  nodeBId String    @db.Uuid
+  score   Float
+  userId  String
+  nodeA   GraphNode @relation("SimilarA", fields: [nodeAId], references: [id], onDelete: Cascade)
+  nodeB   GraphNode @relation("SimilarB", fields: [nodeBId], references: [id], onDelete: Cascade)
 
   @@unique([nodeAId, nodeBId])
   @@map("node_similarities")
